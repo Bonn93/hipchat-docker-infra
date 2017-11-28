@@ -1,0 +1,39 @@
+version: '3.2'
+services:
+  nfs:
+    image: joebiellik/nfs4
+    container_name: nfs_hipchat
+    privileged: true
+    ports:
+      - "2049:2049/tcp"
+      - "2049:2049/udp"
+      - "111:111/tcp"
+      - "111:111/udp"
+    volumes:
+      - $HOME/dockerdata/nfs_hipchat/nfs-export-cfg:/etc/exports
+      - $HOME/dockerdata/nfs_hipchat/:/mnt
+  redis:
+    image: redis:alpine
+    container_name: rds_hipchat
+    ports:
+      - "6379:6379"
+    volumes:
+      - $HOME/dockerdata/rds_hipchat:/data
+  psql:
+    image: postgres:alpine
+    container_name: psql_hipchat
+    command: postgres -c logging_collector=on -c log_destination=stderr -c max_connections=1000
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=hipchat
+      - POSTGRES_USER=hipchat
+      - POSTGRES_PASSWORD=hipchat
+    volumes:
+      - $HOME/dockerdata/psql_hipchat:/var/lib/postgresql/data
+  haproxy:
+    image: haproxy_dev
+    container_name: ha_hipchat
+    ports:
+      - "1936:1936"
+      - "666:666"

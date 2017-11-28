@@ -1,0 +1,1 @@
+/mnt	*(rw,sync,all_squash,anonuid=0,insecure,fsid=0,no_subtree_check)
