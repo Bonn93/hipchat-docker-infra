@@ -1,8 +1,9 @@
 # Overview
-A collection of scripts and docker builds to create the infrastructure required for HipChat Datacenter ( Redis, Postgres, NFS, HAPRoxy )
+A collection of scripts and docker builds to create the infrastructure required for HipChat Datacenter ( Redis, Postgres, NFS, HAPRoxy ). 
 
 Note this is not for production. Only tested via MacOS and using VMWare Fusion to run Hipchat DC Nodes. I've only tested this on MacOS, however it should work just fine on a generic linux/docker hosts. 
 
+### Not for production use ###
 ## init_stack.sh
 Creates the directories needed for docker-compose persistent storage and tests port connectivity.
 * Creates $HOME/dockerdata/blah
@@ -37,4 +38,10 @@ Frontend of HipChat + SSL Termination
 * Update Frontend port to whatever..
 * Configure your HCDC Instance to the FQDN pointing at the Load Balancer ( hack your /etc/hosts if you don't have DNS )
 
-### Not for production use ###
+### Next Steps
+* Deploy the HipChat 3.1.1+ .OVA
+* Using the hipchat cli ( hipchat network -opts ) configure your ip addresses, gateways, dns etc
+* Using the Web UI Setup wizard, configure the Postgres service, then Redis and NFS using the IP address from your workstation after a successful compose
+* Using the hipchat datacenter cli - Configure your instance using a config.json, restart the instance and reboot. On reboot, perform the hipchat datacenter selfcheck
+* Official Atlassion doco for these steps here: https://confluence.atlassian.com/hipchatdc3/configure-hipchat-data-center-nodes-909770912.html
+
