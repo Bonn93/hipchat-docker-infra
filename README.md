@@ -1,10 +1,15 @@
 # Overview
 A collection of scripts and docker builds to create the infrastructure required for HipChat Datacenter ( Redis, Postgres, NFS, HAPRoxy )
 
-Note this is not for production. Only tested via MacOS and using VMWare Fusion to run Hipchat DC Nodes.
+Note this is not for production. Only tested via MacOS and using VMWare Fusion to run Hipchat DC Nodes. I've only tested this on MacOS, however it should work just fine on a generic linux/docker hosts. 
 
 ## init_stack.sh
 Creates the directories needed for docker-compose persistent storage and tests port connectivity.
+* Creates $HOME/dockerdata/blah
+* Copies the NFS Exports cfg to the above nfs_hipchat folder
+* Tests local ports for availability ( can remove this and let docker handle your failures )
+* Builds the HAProxy Container and tags the image locally
+* Runs the docker compose and prints outputs to your shell
 
 ## del_stack.sh
 Deletes the composed stack but keeps container images + data on volumes. 
@@ -30,4 +35,6 @@ Frontend of HipChat + SSL Termination
 * BYO Self Generated Certificate as hipc.pem
 * Config is best known and tested option
 * Update Frontend port to whatever..
+* Configure your HCDC Instance to the FQDN pointing at the Load Balancer ( hack your /etc/hosts if you don't have DNS )
 
+### Not for production use ###
