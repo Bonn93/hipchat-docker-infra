@@ -1,0 +1,8 @@
+{
+  "shared-storage-location": "YOUR_IPADDRESS_HERE:/",
+  "redis-server": "YOUR_IPADDRESS_HERE:6379",
+  "database-server": "YOUR_IPADDRESS_HERE:5432",
+  "database-name": "hipchat",
+  "database-user": "hipchat",
+  "database-password": "hipchat"
+}
