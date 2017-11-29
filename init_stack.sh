@@ -21,6 +21,16 @@ done
         echo  "This failure means a port is already in use, and the docker compose will fail"
         exit 1
     fi
+# Check if we've got a SSL Cert, else create one
+stat hipc.pem
+    if [ $? -eq 1 ]
+    then
+        echo "No hipc.pem for HAProxy, Generating cert!"
+        openssl req -x509 -newkey rsa:4096 -keyout key.pem -out hipc.crt -days 30 -nodes -subj "/C=AU/ST=Sydney/L=Sydney/O=1337 Hax/OU=Valhalla/CN=local.com"
+        cat key.pem hipc.crt > hipc.pem
+    else
+        echo "Found hipc.pem! Let's build!"
+    fi
 # Building Custom Containers:
 docker build -f Dockerfile_HAPROXY -t haproxy_dev .
 printf "HAProxy Container built and tagged as haproxy_dev\n"
