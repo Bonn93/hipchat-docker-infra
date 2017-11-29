@@ -9,6 +9,7 @@ Creates the directories needed for docker-compose persistent storage and tests p
 * Creates $HOME/dockerdata/blah
 * Copies the NFS Exports cfg to the above nfs_hipchat folder
 * Tests local ports for availability ( can remove this and let docker handle your failures )
+* checks if hipc.pem is present, if not creates a dummy .pem for you
 * Builds the HAProxy Container and tags the image locally
 * Runs the docker compose and prints outputs to your shell
 
