@@ -45,5 +45,6 @@ printf "docker exec -it container_name sh\n"
 printf "Note some alpine containers do not have bash!\n"
 printf "Here's a list of the running container names:\n"
 docker ps | awk '{print $NF}' | grep -e '/*_hipchat'
+printf "Load Balancer Status Page: http://localohost:1936\n"
 printf "Your connection for Redis, Postgres and NFS should be the primary IP address of your workstation\n"
 exit 0
