@@ -16,6 +16,9 @@ Creates the directories needed for docker-compose persistent storage and tests p
 ## del_stack.sh
 Deletes the composed stack but keeps container images + data on volumes. 
 
+## nuke.sh
+Deletes all containers and images! Only use to cleanup images and containers when no longer neded. DELETES all containers!
+
 ### NFS
 Shared storage used by all HCDC Nodes
 * NFSv4 Only
@@ -38,6 +41,7 @@ Frontend of HipChat + SSL Termination
 * Config is best known and tested option
 * Update Frontend port to whatever..
 * Configure your HCDC Instance to the FQDN pointing at the Load Balancer ( hack your /etc/hosts if you don't have DNS )
+* configure backend IP addresses in haproxy.cfg or use 192.168.21.171/172/173
 
 ### Next Steps
 * Deploy the HipChat 3.1.1+ .OVA
