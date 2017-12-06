@@ -3,6 +3,11 @@ A collection of scripts and docker builds to create the infrastructure required 
 
 Note this is not for production. Only tested via MacOS and using VMWare Fusion to run Hipchat DC Nodes. I've only tested this on MacOS, however it should work just fine on a generic linux/docker hosts. 
 
+# Upcoming HA Features 
+* Redis HA Clustering
+* Postgres HA Clustering
+* HAProxy Clustering
+
 ### Not for production use ###
 ## init_stack.sh
 Creates the directories needed for docker-compose persistent storage and tests port connectivity.
