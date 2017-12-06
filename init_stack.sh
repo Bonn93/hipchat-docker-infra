@@ -36,7 +36,7 @@ docker build -f Dockerfile_HAPROXY -t haproxy_dev .
 printf "HAProxy Container built and tagged as haproxy_dev\n"
 # Start Composing
 echo "Starting Compose of Backend HipChat Stacks"
-docker-compose -f hcdc_nfs_rds_psql.yml up -d
+docker-compose -f docker-compose.yml up -d
 # Output Docker Containers
 docker ps -a
 # Helpful Info
