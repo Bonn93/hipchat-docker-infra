@@ -1,42 +1,46 @@
 #!/bin/bash
 PORTS=(2049 5432 6379 1936 666)
+
+
 # Ensure dirs are present prior to compose
-mkdir -p $HOME/dockerdata/nfs_hipchat $HOME/dockerdata/rds_hipchat/ $HOME/dockerdata/psql_hipchat/ $HOME/dockerdata/ha_hipchat/
+mkdir -p $HOME/dockerdata/nfs_hipchat $HOME/dockerdata/rds_hipchat/ $HOME/dockerdata/psql_hipchat/ $HOME/dockerdata/ha_hipchat/ $HOME/dockerdata/pgpool/ $HOME/dockerdata/pgmaster $HOME/dockerdata/pgslave1 $HOME/dockerdata/pgslave2
 # Copy NFS Export CFG to Dockerdata
 cp -f nfs-export-cfg $HOME/dockerdata/nfs_hipchat/nfs-export-cfg
+#cp -f pgpool/pgpool.conf $HOME/dockerdata/pgpool/
+#cp -f pgsql/pgsql/configs/pg_hba.conf $HOME/dockerdata/psql_hipchat/
 # Test ports on localhost are not in use
-printf "Testing the following ports for availability:\n"
-printf "%s\n" "${PORTS[@]}"
-{
-for element in "${PORTS[@]}";
-do
-    nc -zv -w 1 127.0.0.1 ${PORTS[0]}; nc -zv -w 1 127.0.0.1 ${PORTS[1]}; nc -zv -w 1 127.0.0.1 ${PORTS[2]}; nc -zv -w 1 127.0.0.1 ${PORTS[3]}; nc -zv -w 1 127.0.0.1 ${PORTS[4]};
-done
-} &> /dev/null
-    if [ $? -eq 1 ]
-        then
-            echo "Port Test Passed"
-    else
-        echo "Port test failed, check ports 2049-NFS, 5432-POSTGRES, 666-HAPROXY, 1936-HAPROXY and 6379-REDIS"
-        echo  "This failure means a port is already in use, and the docker compose will fail"
-        exit 1
-    fi
+#printf "Testing the following ports for availability:\n"
+#printf "%s\n" "${PORTS[@]}"
+#{
+#for element in "${PORTS[@]}";
+#do
+#    nc -zv -w 1 127.0.0.1 ${PORTS[0]}; nc -zv -w 1 127.0.0.1 ${PORTS[1]}; nc -zv -w 1 127.0.0.1 ${PORTS[2]}; nc -zv -w 1 127.0.0.1 ${PORTS[3]}; nc -zv -w 1 127.0.0.1 ${PORTS[4]};
+#done
+#} &> /dev/null
+#    if [ $? -eq 1 ]
+#        then
+#            echo "Port Test Passed"
+#    else
+#        echo "Port test failed, check ports 2049-NFS, 5432-POSTGRES, 666-HAPROXY, 1936-HAPROXY and 6379-REDIS"
+#        echo  "This failure means a port is already in use, and the docker compose will fail"
+#        exit 1
+#    fi
 # Check if we've got a SSL Cert, else create one
-stat hipc.pem
+stat haproxy/hipc.pem
     if [ $? -eq 1 ]
     then
         echo "No hipc.pem for HAProxy, Generating cert!"
-        openssl req -x509 -newkey rsa:4096 -keyout key.pem -out hipc.crt -days 30 -nodes -subj "/C=AU/ST=Sydney/L=Sydney/O=1337 Hax/OU=Valhalla/CN=local.com"
-        cat key.pem hipc.crt > hipc.pem
+        openssl req -x509 -newkey rsa:4096 -keyout haproxy/key.pem -out haproxy/hipc.crt -days 30 -nodes -subj "/C=AU/ST=Sydney/L=Sydney/O=1337 Hax/OU=Valhalla/CN=local.com"
+        cat haproxy/key.pem haproxy/hipc.crt > haproxy/hipc.pem
     else
         echo "Found hipc.pem! Let's build!"
     fi
 # Building Custom Containers:
-docker build -f Dockerfile_HAPROXY -t haproxy_dev .
+docker build -f haproxy/Dockerfile_HAPROXY -t haproxy_dev .
 printf "HAProxy Container built and tagged as haproxy_dev\n"
 # Start Composing
 echo "Starting Compose of Backend HipChat Stacks"
-docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-compose-ha.yml up -d
 # Output Docker Containers
 docker ps -a
 # Helpful Info
