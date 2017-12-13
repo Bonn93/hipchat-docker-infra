@@ -15,35 +15,39 @@ services:
     volumes:
       - $HOME/dockerdata/nfs_hipchat/nfs-export-cfg:/etc/exports
       - $HOME/dockerdata/nfs_hipchat/:/mnt
-  redis-master:
+  rdsmaster:
     image: redis:3.2
-    container_name: rds_hipchat_master
+    container_name: rdsmaster
     ports:
       - "6379:6379"
     volumes:
       - $HOME/dockerdata/rds_hipchat:/data
-  redis-slave1:
+  rdsslave1:
     image: redis:3.2
-    container_name: rds_hipchat_slave1
-    command: redis-server --slaveof redis-master 6379
+    container_name: rdsslave1
+    command: redis-server --slaveof rdsmaster 6379
     links:
-      - redis-master
-  redis-slave2:
+      - rdsmaster
+  rdsslave2:
     image: redis:3.2
-    container_name: rds_hipchat_slave2
-    command: redis-server --slaveof redis-master 6379
+    container_name: rdsslave2
+    command: redis-server --slaveof rdsmaster 6379
     links:
-      - redis-master
+      - rdsmaster
   sentinal:
     build: sentinal
-    container_name: sentinal_hipchat
+    container_name: rdssentinal
     environment:
-      - SENTINAL_DOWN_AFTER=1000
-      - SENTINAL_FAILOVER=1000
+      - SENTINAL_DOWN_AFTER=5
+      - SENTINAL_FAILOVER=5
+      - MASTER_HOST=rdsmaster
+      - SENTINEL_QUORUM=1
+    ports:
+      - "9000:26379"
     links:
-      - redis-master
-      - redis-slave1
-      - redis-slave2
+      - rdsmaster
+      - rdsslave1
+      - rdsslave2
   pgmaster:
     build:
       context: ./pgsql

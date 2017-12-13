@@ -1,5 +1,5 @@
 FROM haproxy:latest
 RUN apt-get update && apt-get install lsof vim less tcpdump telnet net-tools -y
-COPY haproxy.cfg /usr/local/etc/haproxy/
-COPY hipc.pem /usr/local/etc/haproxy/
+COPY haproxy/haproxy.cfg /usr/local/etc/haproxy/
+COPY haproxy/hipc.pem /usr/local/etc/haproxy/
 RUN chmod 777 /usr/local/etc/haproxy/hipc.pem
