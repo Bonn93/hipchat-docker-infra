@@ -48,13 +48,13 @@ services:
       - rdsmaster
       - rdsslave1
       - rdsslave2
-  pgmaster:
+  pgmasterhipchat:
     build:
       context: ./pgsql
       dockerfile: Postgres-9.5.Dockerfile
     container_name: pgmaster
     environment:
-      - PARTNER_NODES=pgmaster,pgslave1,pgslave2
+      - PARTNER_NODES=pgslave1,pgslave2
       - NODE_ID=1
       - NODE_NAME=node1
       - CLUSTER_NODE_NETWORK_NAME=pgmaster
@@ -64,15 +64,15 @@ services:
       - POSTGRES_DB=hipchat
       - POSTGRES_USER=hipchat
       - CLEAN_OVER_REWIND=0
-      - CONFIGS=max_replication_slots:15,max_connections:1000,
+      - CONFIGS=max_replication_slots:15,max_connections:1000
       - CLUSTER_NAME=pg_cluster
-      - REPLICATION_DB=replicaton_db
+      - REPLICATION_DB=replication_db
       - REPLICATION_USER=replication_user
       - REPLICATION_PASSWORD=replication_pass
-    links:
-      - pgslave1
-      - pgpool
-      - pgslave2
+#    links:
+#      - pgslave1_hipchat
+#      - pgpool_hipchat
+#      - pgslave2_hipchat
     ports:
       - "5432:5432"
     volumes:
@@ -81,11 +81,11 @@ services:
       cluster:
         aliases:
           - pgmaster
-  pgslave1:
+  pgslave1_hipchat:
     build:
       context: ./pgsql
       dockerfile: Postgres-9.5.Dockerfile
-    container_name: pgslave1
+    container_name: pgslave1_hipchat
     environment:
       - PARTNER_NODES=pgmaster,pgslave2
       - REPLICATION_PRIMARY_HOST=pgmaster
@@ -101,17 +101,17 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-    links:
-      - pgpool
+#    links:
+#      - pgpool_hipchat
     networks:
       cluster:
         aliases:
           - pgslave1
-  pgslave2:
+  pgslave2_hipchat:
     build:
       context: ./pgsql
       dockerfile: Postgres-9.5.Dockerfile
-    container_name: pgslave2
+    container_name: pgslave2_hipchat
     environment:
       - PARTNER_NODES=pgmaster,pgslave1
       - REPLICATION_PRIMARY_HOST=pgmaster
@@ -131,11 +131,11 @@ services:
       cluster:
         aliases:
           - pgslave2
-  pgpool:
+  pgpool_hipchat:
     build:
       context: ./pgsql
       dockerfile: Pgpool-latest.Dockerfile
-    container_name: pgpool
+    container_name: pgpool_hipchat
     environment:
       - PCP_USER=pcp_user
       - PCP_PASSWORD=pcp_pass
@@ -145,7 +145,7 @@ services:
       - CHECK_PGCONNECT_TIMEOUT=5
       - SSH_ENABLE=1
       - DB_USERS=replication_user:replication_pass
-      - BACKENDS=0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1:5441:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,2:pgslave2:5442:2:/var/lib/postresql/data:ALLOW_TO_FAILOVER
+      - BACKENDS=0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,2:pgslave2:5432:2:/var/lib/postresql/data:ALLOW_TO_FAILOVER
       - REQUIRE_MIN_BACKENDS=1
       - CONFIGS=num_init_children:250,max_pool:15
     ports:
@@ -156,8 +156,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-    links:
-      - pgslave2
+#    links:
+#      - pgslave2_hipchat
 #    volumes:
 #      - $HOME/dockerdata/pgpool/pgpool.conf:/usr/local/etc/pgpool.conf
 #      - $HOME/dockerdata/pgpool/:/usr/local/etc/

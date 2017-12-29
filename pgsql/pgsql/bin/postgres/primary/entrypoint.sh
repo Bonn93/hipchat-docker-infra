@@ -10,3 +10,6 @@ createdb $REPLICATION_DB -O $REPLICATION_USER
 
 #TODO: make it more flexible, allow set of IPs
 echo "host replication $REPLICATION_USER 0.0.0.0/0 md5" >> $PGDATA/pg_hba.conf
+echo "host all all 0.0.0.0/0 md5" >> $PGDATA/pg_hba.conf
+echo "host all all 0.0.0.0/0 trust" >> $PGDATA/pg_hba.conf
+echo "host replication replication_user 0.0.0.0/0 md5" >> $PGDATA/pg_hba.conf
