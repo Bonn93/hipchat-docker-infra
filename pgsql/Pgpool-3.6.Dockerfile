@@ -32,6 +32,11 @@ RUN  apt-get install -y libffi-dev libssl-dev postgresql-client-$POSTGRES_CLIENT
 RUN  wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
      tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
+RUN  apt-get install -y net-tools
+RUN  mkdir -p /var/run/pgpool
+RUN  touch /var/log/postgresql/pgpool_status
+RUN  chown postgres:postgres /var/log/postgresql/pgpool_status
+
 COPY ./ssh /home/postgres/.ssh
 COPY ./pgpool/bin /usr/local/bin/pgpool
 COPY ./pgpool/configs /var/pgpool_configs

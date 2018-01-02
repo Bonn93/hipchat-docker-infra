@@ -69,10 +69,6 @@ services:
       - REPLICATION_DB=replication_db
       - REPLICATION_USER=replication_user
       - REPLICATION_PASSWORD=replication_pass
-#    links:
-#      - pgslave1_hipchat
-#      - pgpool_hipchat
-#      - pgslave2_hipchat
     ports:
       - "5432:5432"
     volumes:
@@ -96,13 +92,6 @@ services:
       - CONFIGS=max_replication_slots:10
     ports:
       - "5441:5432"
-    healthcheck:
-      test: ["CMD", "sh -c", "pg_isready", "--host=pgmaster", "--port=5432", "--dbname=hipchat"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-#    links:
-#      - pgpool_hipchat
     networks:
       cluster:
         aliases:
@@ -122,20 +111,15 @@ services:
       - CONFIGS=max_replication_slots:10
     ports:
         - "5442:5432"
-    healthcheck:
-      test: ["CMD", "sh -c", "pg_isready", "--host=pgmaster", "--port=5432", "--dbname=hipchat"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
     networks:
       cluster:
         aliases:
           - pgslave2
-  pgpool_hipchat:
+  pgpool1_hipchat:
     build:
       context: ./pgsql
       dockerfile: Pgpool-latest.Dockerfile
-    container_name: pgpool_hipchat
+    container_name: pgpool1_hipchat
     environment:
       - PCP_USER=pcp_user
       - PCP_PASSWORD=pcp_pass
@@ -147,24 +131,42 @@ services:
       - DB_USERS=replication_user:replication_pass
       - BACKENDS=0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,2:pgslave2:5432:2:/var/lib/postresql/data:ALLOW_TO_FAILOVER
       - REQUIRE_MIN_BACKENDS=1
-      - CONFIGS=num_init_children:250,max_pool:15
+      - CONFIGS=num_init_children:250,max_pool:15,use_watchdog:on,other_pgpool_hostname1:pgpool2,other_pgpool_port1:5432,other_wd_port1:9006,wd_port:9005,wd_hostname:pgpool1,wd_heartbeat_port:9694,heartbeat_destination0:pgpool2
     ports:
       - "5430:5432"
       - "9898:9898"
-    healthcheck:
-      test: ["CMD", "sh -c", "pg_isready", "--host=pgmaster", "--port=5432", "--dbname=hipchat"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-#    links:
-#      - pgslave2_hipchat
-#    volumes:
-#      - $HOME/dockerdata/pgpool/pgpool.conf:/usr/local/etc/pgpool.conf
-#      - $HOME/dockerdata/pgpool/:/usr/local/etc/
+      - "9005:9005"
+      - "9694:9694"
     networks:
       cluster:
         aliases:
-          - pgpool
+          - pgpool1
+  pgpool2_hipchat:
+    build:
+      context: ./pgsql
+      dockerfile: Pgpool-latest.Dockerfile
+    container_name: pgpool2_hipchat
+    environment:
+      - PCP_USER=pcp_user
+      - PCP_PASSWORD=pcp_pass
+      - WAIT_BACKEND_TIMEOUT=20
+      - CHECK_USER=replication_user
+      - CHECK_PASSWORD=replication_pass
+      - CHECK_PGCONNECT_TIMEOUT=5
+      - SSH_ENABLE=1
+      - DB_USERS=replication_user:replication_pass
+      - BACKENDS=0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,2:pgslave2:5432:2:/var/lib/postresql/data:ALLOW_TO_FAILOVER
+      - REQUIRE_MIN_BACKENDS=1
+      - CONFIGS=num_init_children:250,max_pool:15,use_watchdog:on,other_pgpool_hostname1:pgpool1,other_pgpool_port1:5432,other_wd_port1:9005,wd_port:9006,wd_hostname:pgpool2,wd_heartbeat_port:9695,heartbeat_destination0:pgpool1
+    ports:
+      - "5431:5432"
+      - "9899:9898"
+      - "9006:9006"
+      - "9695:9695"
+    networks:
+      cluster:
+        aliases:
+          - pgpool2
   haproxy:
     image: haproxy_dev
     container_name: ha_hipchat
