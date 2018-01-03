@@ -131,7 +131,7 @@ services:
       - DB_USERS=replication_user:replication_pass
       - BACKENDS=0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,2:pgslave2:5432:2:/var/lib/postresql/data:ALLOW_TO_FAILOVER
       - REQUIRE_MIN_BACKENDS=1
-      - CONFIGS=num_init_children:250,max_pool:15,use_watchdog:on,other_pgpool_hostname1:pgpool2,other_pgpool_port1:5432,other_wd_port1:9006,wd_port:9005,wd_hostname:pgpool1,wd_heartbeat_port:9694,heartbeat_destination0:pgpool2
+      - CONFIGS=num_init_children:250,max_pool:15,use_watchdog:on,other_pgpool_hostname1:pgpool2,other_pgpool_port1:5432,other_wd_port1:9006,wd_port:9005,wd_hostname:pgpool1,wd_heartbeat_port:9694,heartbeat_destination0:pgpool2,enable_pool_hba:on
     ports:
       - "5430:5432"
       - "9898:9898"
@@ -157,7 +157,7 @@ services:
       - DB_USERS=replication_user:replication_pass
       - BACKENDS=0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,2:pgslave2:5432:2:/var/lib/postresql/data:ALLOW_TO_FAILOVER
       - REQUIRE_MIN_BACKENDS=1
-      - CONFIGS=num_init_children:250,max_pool:15,use_watchdog:on,other_pgpool_hostname1:pgpool1,other_pgpool_port1:5432,other_wd_port1:9005,wd_port:9006,wd_hostname:pgpool2,wd_heartbeat_port:9695,heartbeat_destination0:pgpool1
+      - CONFIGS=num_init_children:250,max_pool:15,use_watchdog:on,other_pgpool_hostname1:pgpool1,other_pgpool_port1:5432,other_wd_port1:9005,wd_port:9006,wd_hostname:pgpool2,wd_heartbeat_port:9695,heartbeat_destination0:pgpool1,enable_pool_hba:on
     ports:
       - "5431:5432"
       - "9899:9898"
