@@ -20,7 +20,8 @@ Use this for:
 * ./init_stack.sh 
 * Get a coffee 
 * ???
-* Profit 
+* Profit
+
 
 ## init_stack.sh
 Creates the directories needed for docker-compose persistent storage and tests port connectivity.
@@ -34,14 +35,16 @@ Creates the directories needed for docker-compose persistent storage and tests p
     * 3x Redis
     * 1x Sentinel
     * 3x Postgres 9.5 in Master/Slave
-    * 1x Pgpool
+    * 2x Pgpool with Watchdog
     * 1x HAProxy
     * 1x NFSv4
-* May need a second run as initial DB creation + Replication setup means pgpool and slaves timeout on the very first run... needs a wait_for script..
 * Update the docker-compose -f line with choice of docker-compose.yml or docker-compose-ha.yml 
 
 ## del_stack.sh
-Deletes the composed stack but keeps container images + data on volumes. 
+Deletes the composed stack but keeps container images + data on volumes.
+
+## down_stack.sh
+Performs a docker-compose down to shutdown all containers.
 
 ## nuke.sh
 Deletes all containers and images! Only use to cleanup images and containers when no longer neded. DELETES all containers!
@@ -70,12 +73,13 @@ Frontend of HipChat + SSL Termination
 * Config is best known and tested option
 * Update Frontend port to whatever..
 * Configure your HCDC Instance to the FQDN pointing at the Load Balancer ( hack your /etc/hosts if you don't have DNS )
-* configure backend IP addresses in haproxy.cfg or use 192.168.21.171/172/173
+* configure backend IP addresses in haproxy.cfg or use 192.168.122.100 etc etc
 
 ### Next Steps
 * Deploy the HipChat 3.1.1+ .OVA
-* Using the hipchat cli ( hipchat network -opts ) configure your ip addresses, gateways, dns etc
+* Configure your HCDC Nodes with IPs from the HAProxy.cfg
 * Using the Web UI Setup wizard, configure the Postgres service, then Redis and NFS using the IP address from your workstation after a successful compose
+* To benefit from automagic failovers, connect to postgres via PGPool (port 5430) and Redis Sentinel via (port 9000)
 * Using the hipchat datacenter cli - Configure your instance using a config.json, restart the instance and reboot. On reboot, perform the hipchat datacenter selfcheck
 * Official Atlassion doco for these steps here: https://confluence.atlassian.com/hipchatdc3/configure-hipchat-data-center-nodes-909770912.html
 
@@ -89,14 +93,14 @@ Frontend of HipChat + SSL Termination
 
 ### Postgres + PGPool
 * 3x Postgres 9.5 Instances ( 1 Master, 2 Slaves )
-* 1x PGPool Monitor 
+* 2x PGPool with Watchdog
 
 ### HAProxy + KeepAlived
 * Singular Instance for now
 
 # Next Steps
 * Deploy the HipChat 3.1.1+ .OVA
-* Using the hipchat cli ( hipchat network -opts ) configure your ip addresses, gateways, dns etc
+* Configure your HCDC Nodes with IPs from the HAProxy.cfg
 * Using the Web UI Setup wizard, configure the Postgres service, then Redis and NFS using the IP address from your workstation after a successful compose
 * Using the hipchat datacenter cli - Configure your instance using a config.json, restart the instance and reboot. On reboot, perform the hipchat datacenter selfcheck
 * Official Atlassion doco for these steps here: https://confluence.atlassian.com/hipchatdc3/configure-hipchat-data-center-nodes-909770912.html
