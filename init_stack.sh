@@ -48,6 +48,6 @@ printf "Here's a list of the running container names:\n"
 docker ps | awk '{print $NF}' | grep -e '/*_hipchat'
 printf "Load Balancer Status Page: http://localhost:1936\n"
 printf "Redis = <workstation_ip> + Port 9000\n"
-printf "Postgres = <workstation_ip> + Port 5430"
+printf "Postgres = <workstation_ip> + Port 5430\n"
 printf "NFS = <workstation_ip> + /\n"
 exit 0
