@@ -16,6 +16,10 @@ DBPINGLOG=dbping.log
 RDPINGLOG=rdsping.log
 NFSPINGLOG=nfsping.log
 LIMITS=ulimits.log
+CNTRACK=conntrack.log
+SARLOG1=sarlog1.log
+SARLOG2=sarlog2.log
+CPUDATA=cpu.log
 
 OPTS1="-zvw1"
 C="-c 1"
@@ -23,6 +27,9 @@ C="-c 1"
 VAL=10s
 VAL2=30s
 TIMESTAMP="$(date +%D%H%M%S)"
+
+# Record the CPU Profiles
+cat /proc/cpuinfo >> $CPUDATA
 
 # Monitor Functions
 function dbconnect() {
@@ -50,7 +57,16 @@ ping $NFSSERVER $C -D >> $NFSPINGLOG 2>&1
 }
 
 function reculimit() {
-ulimit -a | tail -20 | sed "s/^/$TIMESTAMP/" >> $LIMITS
+ulimit -a | gawk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }' >> $LIMITS
+}
+
+function conntrack() {
+cat /proc/sys/net/netfilter/nf_conntrack_count | gawk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }' >> $CNTRACK
+}
+
+function sard() {
+sar -d >> $SARLOG1
+sar >> $SARLOG2
 }
 
 # Execute the loop
@@ -64,5 +80,7 @@ do
     rdsping; echo "Pinging Redis.. should be HiRedis"
     nfsping; echo "Pinging NFS Storage"
     reculimit; echo "Recording ulimits"
+    conntrack; echo "Recording conntrack table"
+    sard; echo "Recording SAR TPS"
 done
 }
