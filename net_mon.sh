@@ -1,4 +1,11 @@
 #!/bin/bash
+# Script Notes..
+# Configure IP or FQDNs of Postgres, Redis and NFS Services
+# Configure Service Ports
+# Configure $VAL for collection frequency pending server load.. Best is 30s
+# We check that the sysstat service is installed and enabled on lolubuntu..
+# We enable sysstat collections in /etc/defaults/sysstat
+# We check that NMON is installed... Install from here if the script exits!
 
 # Configure these values...
 DBSERVER=127.0.0.1
@@ -20,16 +27,57 @@ CNTRACK=conntrack.log
 SARLOG1=sarlog1.log
 SARLOG2=sarlog2.log
 CPUDATA=cpu.log
+NMONDATA="$(hostname)"
 
 OPTS1="-zvw1"
 C="-c 1"
 
-VAL=10s
-VAL2=30s
+VAL=30s
 TIMESTAMP="$(date +%D%H%M%S)"
+PWD=$(pwd)
+
+
+printf "Data and logs contained in $PWD\n"
+printf "Control-C stops script and tars all data...\n"
+
+trap '{ echo "Control-C detected, wrapping logs an cleaning up.... exiting.." ;
+    # Kill nmon process..
+    kill -9 $(pidof nmon)
+        echo "killing nmon collector..."
+    # Collect SAR results
+    sar -d >> $SARLOG1
+    sar >> $SARLOG2
+    tar -czvf support.tar.gz $DBLOG $RDLOG $NFSLOG $DBPINGLOG $RDPINGLOG $NFSPINGLOG $LIMITS $CNTRACK $SARLOG1 $SARLOG2 $CPUDATA $NMONDATA
+        echo "compressing logs..."
+    exit 1; }' INT
+
 
 # Record the CPU Profiles
 cat /proc/cpuinfo >> $CPUDATA
+
+# Check systat enabled, if not enable and restart services
+service sysstat status
+    if [ $? -eq 1 ]
+    then echo "sysstat service is not enabled or installed, attempting..."
+    apt-get install sysstat
+    sed -i '1s/false/true' /etc/default/sysstat
+    service sysstat enable
+    service sysstat start
+    type sar
+    fi
+
+# Check if NMON is present
+type nmon
+    if [ $? -eq 1 ]
+    then echo "Nmon does not exist!"
+    echo "Nmon is not installed! Stable without source is here: http://sourceforge.net/projects/nmon/files/nmon_linux_14i.tar.gz\n"
+    echo "Use the Use the UbuntuX86_64_13 binary and cp to /usr/bin/nmon\n"
+    echo "Ensure the manual command like this works.. nmon -f -t\n"
+    exit
+    fi
+
+# Start NMON background collector
+nmon -f -t $NMONDATA.nmon & echo $!
 
 # Monitor Functions
 function dbconnect() {
@@ -64,11 +112,6 @@ function conntrack() {
 cat /proc/sys/net/netfilter/nf_conntrack_count | gawk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }' >> $CNTRACK
 }
 
-function sard() {
-sar -d >> $SARLOG1
-sar >> $SARLOG2
-}
-
 # Execute the loop
 {
 while sleep $VAL;
@@ -81,6 +124,5 @@ do
     nfsping; echo "Pinging NFS Storage"
     reculimit; echo "Recording ulimits"
     conntrack; echo "Recording conntrack table"
-    sard; echo "Recording SAR TPS"
 done
 }
