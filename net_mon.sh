@@ -60,7 +60,7 @@ service sysstat status
     if [ $? -eq 1 ]
     then echo "sysstat service is not enabled or installed, attempting..."
     apt-get install sysstat
-    sed -i '1s/false/true' /etc/default/sysstat
+    echo "ENABLED="true"" > /etc/default/sysstat
     service sysstat enable
     service sysstat start
     type sar
