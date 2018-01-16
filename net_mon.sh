@@ -15,7 +15,9 @@ NFSSERVER=127.0.0.1
 POSTGRES=5432
 REDIS=6379
 NFS=2049
+# End configurable values
 
+# Log Files
 DBLOG=postgres_network.log
 RDLOG=redis_network.log
 NFSLOG=nfs_network.log
@@ -36,10 +38,11 @@ VAL=30s
 TIMESTAMP="$(date +%D%H%M%S)"
 PWD=$(pwd)
 
-
+# Begin script
 printf "Data and logs contained in $PWD\n"
 printf "Control-C stops script and tars all data...\n"
 
+# This is a control-c trap... this exits the script and tars the logs in the working directory
 trap '{ echo "Control-C detected, wrapping logs an cleaning up.... exiting.." ;
     # Kill nmon process..
     kill -9 $(pidof nmon)
