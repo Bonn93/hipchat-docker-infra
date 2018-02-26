@@ -30,7 +30,7 @@ Creates the directories needed for docker-compose persistent storage and tests p
 * Checks if hipc.pem is present, if not creates a dummy .pem for you
 * Builds the HAProxy Container and tags the image locally
 * Runs the docker compose and prints outputs to your shell
-* Runs the docker-compose-ha.yml by default
+* Runs the docker-compose.yml by default
 
 
 ## del_stack.sh
