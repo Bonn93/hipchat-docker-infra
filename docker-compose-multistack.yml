@@ -36,7 +36,7 @@ services:
     container_name: ha_hipchat
     ports:
       - "1936:1936"
-      - "666:666"
+      - "443:443"
   ldap:
     image: kwart/ldap-server
     container_name: ldap_hipchat
