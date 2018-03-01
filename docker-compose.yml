@@ -36,4 +36,4 @@ services:
     container_name: ha_hipchat
     ports:
       - "1936:1936"
-      - "666:666"
+      - "443:443"
